@@ -1,0 +1,6 @@
+From https://developer.s24.com/blog/german_stemming_like_a_pro.html:
+
+The Hunspell stemmer needs a current german Hunspell dictionary and affix definition. Those can be found on the Apache Open Office website as .oxt files. Download a current version and rename the file suffix to .zip. Unzip it and locate the Hunspell dictionary in de_DE_frami/de_DE_frami.dic and the Hunspell affix definition in de_DE_frami/de_DE_frami.aff.
+
+Link: http://extensions.openoffice.org/de/project/german-de-de-frami-dictionaries
+

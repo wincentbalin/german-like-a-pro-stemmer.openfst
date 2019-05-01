@@ -1,0 +1,6 @@
+From https://developer.s24.com/blog/german_stemming_like_a_pro.html:
+
+There are several german wordlists around. We consider the german GNU wordlist by Georg Pfeiffer pretty complete.
+
+Link: http://repo.or.cz/w/wortliste.git/blob/master:/wortliste
+

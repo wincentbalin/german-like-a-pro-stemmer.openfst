@@ -1,0 +1,6 @@
+From https://developer.s24.com/blog/german_stemming_like_a_pro.html:
+
+We use a synonym filter for stemming fine tuning. We compile it out of wordlists of common domain words. If you want to use one out of the box, take a look at a german stemming file (in Solr syntax) from Github. The file is quite large (8,6MB) and contains some 1:1 mappings, so it might be a good idea to clean it up a little.
+
+Link: https://gist.github.com/tboeghk/6220342
+

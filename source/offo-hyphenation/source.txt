@@ -1,0 +1,6 @@
+From https://developer.s24.com/blog/german_stemming_like_a_pro.html:
+
+Besides a list of known words, the HyphenationCompoundWordTokenFilter 3 needs a hyphenatation definition. It is compatible with the old Apache Offo Hyphenation definition. Download offo-hyphenation_v1.2.zip from Sourceforge and locate the hyph/de.xml in the package. Use this as hyphenator input to the token filter.
+
+Link: http://sourceforge.net/projects/offo/files/offo-hyphenation/1.2/
+
