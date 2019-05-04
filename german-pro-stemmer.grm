@@ -1,0 +1,12 @@
+#
+# German Pro Stemmer
+#
+# From the article https://developer.s24.com/blog/german_stemming_like_a_pro.html
+
+wortliste = StringFile['wortliste'];
+
+synonymliste = StringFile['synonymliste'];
+
+export e1 = Optimize[wortliste];
+export e2 = Optimize[synonymliste];
+
