@@ -1,3 +1,8 @@
 # Ignore Vagrant development setup
 install-opengrm.sh
 Vagrantfile
+
+# Ignore Vagrant settings and logfiles
+.vagrant/
+ubuntu-*-console.log
+
