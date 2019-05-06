@@ -6,3 +6,12 @@ Vagrantfile
 .vagrant/
 ubuntu-*-console.log
 
+# Ignore intermediate files
+synonymliste
+wortliste
+
+# Ignore .far files
+german-pro-stemmer.far
+synonymliste.far
+wortliste.far
+
