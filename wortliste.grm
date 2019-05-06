@@ -1,0 +1,3 @@
+wortliste = StringFile['wortliste'];
+export WORTLISTE = Optimize[wortliste];
+

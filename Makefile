@@ -1,9 +1,19 @@
 #
 # Source files section
+#
 SOURCE_WORTLISTE = source/wortliste/wortliste
 SOURCE_SYNONYMLISTE = source/synonymliste/gistfile1.txt
 
-german-pro-stemmer.far: german-pro-stemmer.grm wortliste synonymliste
+#
+# Compilation rules
+#
+german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far wortliste synonymliste
+	thraxcompiler --input_grammar=$< --output_far=$@
+
+wortliste.far: wortliste.grm wortliste
+	thraxcompiler --input_grammar=$< --output_far=$@
+
+synonymliste.far: synonymliste.grm synonymliste
 	thraxcompiler --input_grammar=$< --output_far=$@
 
 wortliste: $(SOURCE_WORTLISTE)
@@ -13,4 +23,5 @@ synonymliste: $(SOURCE_SYNONYMLISTE)
 	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' > $@
 
 clean:
-	rm -f wortliste synonymliste
+	rm -f wortliste.far synonymliste.far wortliste synonymliste
+

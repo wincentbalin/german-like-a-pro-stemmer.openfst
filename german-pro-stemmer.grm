@@ -3,10 +3,9 @@
 #
 # From the article https://developer.s24.com/blog/german_stemming_like_a_pro.html
 
-wortliste = StringFile['wortliste'];
+import 'wortliste.grm' as wl;
+import 'synonymliste.grm' as sl;
 
-synonymliste = StringFile['synonymliste'];
-
-export e1 = Optimize[wortliste];
-export e2 = Optimize[synonymliste];
+# WORTLISTE is not a self-sufficient wordlist! It should be used with together with hyphenator!
+export STEMMER = Optimize[(wl.WORTLISTE <-1>) | (sl.SYNONYMLISTE <-4>)];
 

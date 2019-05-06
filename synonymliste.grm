@@ -1,0 +1,3 @@
+synonymliste = StringFile['synonymliste'];
+export SYNONYMLISTE = Optimize[synonymliste];
+
