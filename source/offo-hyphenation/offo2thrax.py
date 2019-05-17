@@ -42,13 +42,13 @@ class Exceptions:
         elem = root.find('exceptions')
         if elem is not None:
             rawtext = ET.tostring(elem).decode('utf-8')
-            print(rawtext)
+            #print(rawtext)
             # A good Python XML SAX example: https://www.tutorialspoint.com/python3/python_xml_processing.htm
             parser = xml.sax.make_parser()
             parser.setFeature(xml.sax.handler.feature_namespaces, 0)
             exceptions_handler = ExceptionsHandler(self)
             xml.sax.parseString(rawtext, exceptions_handler)
-            print(self.entries)
+            #print(self.entries)
 
     def add_entry(self, hyph_word: list):
         self.entries.append(hyph_word)
@@ -85,22 +85,31 @@ class ExceptionsHandler(xml.sax.ContentHandler):
                 self.current_word = []
 
 
+class Patterns:
+    """Abstraction of patterns."""
+    def __init__(self, root: ET.Element):
+        elem = root.find('patterns')
+        self.patterns = elem.text.split()
+
+
 def load_offo_file(args: argparse.Namespace) -> tuple:
     with zipfile.ZipFile(args.offofile) as offozip:
         xmldata = offozip.read('offo-hyphenation/hyph/{}.xml'.format(args.language))
-    root = ET.fromstring(xmldata.decode('iso-8859-1'))
+    root = ET.fromstring(xmldata.decode(args.charset))
     hyphen_min = HyphenMin(root)
     exceptions = Exceptions(root)
-    hyphen_min, exceptions, patterns = tuple(map(root.find, ('hyphen-min', 'exceptions', 'patterns')))
+    patterns = Patterns(root)
+    return hyphen_min, exceptions, patterns
 
 
 def main():
-    argparser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)
+    argparser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argparser.add_argument('offofile', type=argparse.FileType('rb'), help='Zip archive of OFFO hyphenations')
+    argparser.add_argument('-c', '--charset', help='Character set in OFFO xml file', default='iso-8859-1')
     argparser.add_argument('language', help='language name')
     argparser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
     args = argparser.parse_args()
-    load_offo_file(args)
+    hyphen_min, exceptions, patterns = load_offo_file(args)
 
 
 if __name__ == "__main__":
