@@ -15,3 +15,5 @@ german-pro-stemmer.far
 synonymliste.far
 wortliste.far
 
+# Ignore testing files
+.rewrite-tester-history
