@@ -12,6 +12,38 @@ import xml.sax
 import xml.etree.ElementTree as ET
 
 
+# The configuration dictionary replace
+CONFIG = {}
+
+
+class Language:
+    """Abstraction of a language."""
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError('Please derive your language form class Language')
+
+
+class GermanLanguage(Language):
+    def __init__(self):
+        self.name = 'de'
+        self.xml_charset = 'iso-8859-1'
+        self.symbols = 'abcdefghijklmnopqrstuvwxyzAOUNS.-'
+        self.inconv = {
+            'A': 'a',
+            'a': 'a',
+            'Ä': 'A',
+            'ä': 'A',
+            'Ö': 'O',
+            'ö': 'O',
+            'Ü': 'U',
+            'ü': 'U',
+            'ß': 'S',
+            '.': '.',
+            '-': '-'
+        }
+        # Register itself
+        CONFIG[self.name] = self
+
+
 class HyphenMin:
     """Abstraction of hyphen minimum parameters."""
     def __init__(self, root: ET.Element):
@@ -23,14 +55,6 @@ class HyphenMin:
     def get_attribute(self, elem: ET.Element, attr: str):
         return int(elem.get(attr)) if attr in elem.attrib else None
 
-
-class HyphenChar:
-    """Abstraction for hyphen character."""
-    def __init__(self, root: ET.Element):
-        elem = root.find('hyphen-char')
-        if elem is not None:
-            self.value = elem.get('value', default='-')
-        
 
 class Hyphen:
     """Abstraction of a TeX hyphen, with all properties."""
@@ -50,7 +74,6 @@ class Exceptions:
         elem = root.find('exceptions')
         if elem is not None:
             rawtext = ET.tostring(elem).decode('utf-8')
-            #print(rawtext)
             # A good Python XML SAX example: https://www.tutorialspoint.com/python3/python_xml_processing.htm
             parser = xml.sax.make_parser()
             parser.setFeature(xml.sax.handler.feature_namespaces, 0)
@@ -98,34 +121,36 @@ class Patterns:
     def __init__(self, root: ET.Element):
         elem = root.find('patterns')
         self.patterns = elem.text.split()
-        print(self.patterns)
 
 
 def load_offo_file(args: argparse.Namespace) -> tuple:
     with zipfile.ZipFile(args.offofile) as offozip:
         xmldata = offozip.read('offo-hyphenation/hyph/{}.xml'.format(args.language))
-    root = ET.fromstring(xmldata.decode(args.charset))
+    root = ET.fromstring(xmldata.decode(CONFIG[args.language]['xml-charset']))
     hyphen_min = HyphenMin(root)
-    hyphen_char = HyphenChar(root)
     exceptions = Exceptions(root)
     patterns = Patterns(root)
-    return hyphen_min, hyphen_char, exceptions, patterns
+    return hyphen_min, exceptions, patterns
 
 
-def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, hc: HyphenChar, ex: Exceptions, pt: Patterns):
-    # Create alphabet
-    pass
+def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt: Patterns):
+    # Split patterns so they contain only one hyphenation point and order them by ascending priority
+    for pattern in pt.patterns:
+        print(pattern)
 
 
 def main():
     argparser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argparser.add_argument('offofile', type=argparse.FileType('rb'), help='Zip archive of OFFO hyphenations')
-    argparser.add_argument('-c', '--charset', help='Character set in OFFO xml file', default='iso-8859-1')
     argparser.add_argument('language', help='language name')
     argparser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
     args = argparser.parse_args()
-    hyphen_min, hyphen_char, exceptions, patterns = load_offo_file(args)
-    save_thrax_file(args, hyphen_min, hyphen_char, exceptions, patterns)
+    if args.language not in CONFIG:
+        print('Language "{}" is not configured'.format(args.language), file=sys.stderr)
+        print('Please consult CONFIG dictionary at the top of the executed script', file=sys.stderr)
+        sys.exit(1)
+    hyphen_min, exceptions, patterns = load_offo_file(args)
+    save_thrax_file(args, hyphen_min, exceptions, patterns)
 
 
 if __name__ == "__main__":
