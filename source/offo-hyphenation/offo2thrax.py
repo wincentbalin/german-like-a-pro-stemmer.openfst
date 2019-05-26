@@ -24,6 +24,14 @@ class HyphenMin:
         return int(elem.get(attr)) if attr in elem.attrib else None
 
 
+class HyphenChar:
+    """Abstraction for hyphen character."""
+    def __init__(self, root: ET.Element):
+        elem = root.find('hyphen-char')
+        if elem is not None:
+            self.value = elem.get('value', default='-')
+        
+
 class Hyphen:
     """Abstraction of a TeX hyphen, with all properties."""
     def __init__(self, pre=None, post=None, no=None):
@@ -90,6 +98,7 @@ class Patterns:
     def __init__(self, root: ET.Element):
         elem = root.find('patterns')
         self.patterns = elem.text.split()
+        print(self.patterns)
 
 
 def load_offo_file(args: argparse.Namespace) -> tuple:
@@ -97,9 +106,15 @@ def load_offo_file(args: argparse.Namespace) -> tuple:
         xmldata = offozip.read('offo-hyphenation/hyph/{}.xml'.format(args.language))
     root = ET.fromstring(xmldata.decode(args.charset))
     hyphen_min = HyphenMin(root)
+    hyphen_char = HyphenChar(root)
     exceptions = Exceptions(root)
     patterns = Patterns(root)
-    return hyphen_min, exceptions, patterns
+    return hyphen_min, hyphen_char, exceptions, patterns
+
+
+def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, hc: HyphenChar, ex: Exceptions, pt: Patterns):
+    # Create alphabet
+    pass
 
 
 def main():
@@ -109,7 +124,8 @@ def main():
     argparser.add_argument('language', help='language name')
     argparser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
     args = argparser.parse_args()
-    hyphen_min, exceptions, patterns = load_offo_file(args)
+    hyphen_min, hyphen_char, exceptions, patterns = load_offo_file(args)
+    save_thrax_file(args, hyphen_min, hyphen_char, exceptions, patterns)
 
 
 if __name__ == "__main__":
