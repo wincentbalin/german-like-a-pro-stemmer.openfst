@@ -106,17 +106,106 @@ def convert_to_symbols(s: str) -> str:
     return s.replace('ä', 'A').replace('ö', 'O').replace('ü', 'U').replace('å', 'N').replace('ß', 'S')
 
 
+def thraxified_context(ctx: str) -> str:
+    if len(ctx) >= 5 and ctx.startswith('[BOS]'):
+        bos = '"[BOS]" '
+        ctx = ctx[5:]
+    else:
+        bos = ''
+    if len(ctx) >= 5 and ctx.endswith('[EOS]'):
+        eos = ' "[EOS]"'
+        ctx = ctx[:-5]
+    else:
+        eos = ''
+    syms = []
+    for c in ctx:
+        if c == '-':
+            syms.append('hyph')
+        else:
+            syms.append('"{}".symtab'.format(c))
+    if ctx == '':
+        syms.append('""')
+    return bos + ' '.join(syms) + eos
+
+
 def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt: Patterns):
     # Split patterns so they contain only one hyphenation point and order them by ascending priority
-    split_patterns = []
+    rewrites = [[] for i in range(10)]
+    #digits = [0] * 10
     for pattern in pt.patterns:
         pattern = convert_to_symbols(pattern)
-        #print(pattern)
-    print('symtab = SymbolTable[\'hyph-de.sym\']', file=args.thraxfile)
-    print('conv_in = SymbolTable[\'hyph-de-in.tsv\', \'utf8\', symtab]', file=args.thraxfile)
-    print('conv_out = SymbolTable[\'hyph-de-out.tsv\', symtab, \'byte\']', file=args.thraxfile)
+        last_pos = len(pattern)-1
+        last_letter_pos = None
+        for i in range(last_pos, -1, -1):
+            if pattern[i].isalpha():
+                last_letter_pos = i
+                break
+        min_hyph_pos = 0
+        alpha_index = 0
+        if pattern[0] == '.':
+            for i in range(len(pattern)):
+                if pattern[i].isalpha():
+                    if alpha_index < hm.before:
+                        alpha_index += 1
+                    else:
+                        min_hyph_pos = i
+                        break
+        max_hyph_pos = last_pos
+        alpha_index = 0
+        if pattern[last_pos] == '.':
+            for i in range(last_pos, -1, -1):
+                if pattern[i].isalpha():
+                    if alpha_index < hm.after:
+                        alpha_index += 1
+                    else:
+                        max_hyph_pos = i
+                        break
+        hyphpoints = [(i, int(c)) for i, c in enumerate(pattern) if c.isdigit()]
+        for point, point_value in hyphpoints:
+            lctx = []
+            rctx = []
+            for i in range(point):
+                c = pattern[i]
+                if c.isdigit():
+                    continue
+                if c == '.':
+                    lctx.append('[BOS]')
+                else:
+                    lctx.append(c)
+                    if i < point - 1 and i >= min_hyph_pos:
+                        lctx.append('-')
+            for i in range(point+1, len(pattern)):
+                c = pattern[i]
+                if c.isdigit():
+                    continue
+                if c == '.':
+                    rctx.append('[EOS]')
+                else:
+                    rctx.append(c)
+                    if i < last_letter_pos and i < max_hyph_pos:
+                        rctx.append('-')
+            #print('{} {} {}'.format(''.join(lctx), pattern[point], ''.join(rctx)))
+            rewrites[point_value].append((''.join(lctx), ''.join(rctx)))
+        #digits[sum(c.isdigit() for c in pattern)] += 1
+    #print(digits)
+    #print(rewrites)
+    #for l in rewrites:
+    #    print(len(l))
+    print('symtab = SymbolTable[\'hyph-de.sym\'];', file=args.thraxfile)
+    print('ConvIn = StringFile[\'hyph-de-in.tsv\', \'utf8\', symtab];', file=args.thraxfile)
+    print('ConvOut = StringFile[\'hyph-de-out.tsv\', symtab, \'byte\'];', file=args.thraxfile)
     print('', file=args.thraxfile)
-    print('sigma_star = symtab*', file=args.thraxfile)
+    print('hyph = "-".symtab ?;', file=args.thraxfile)
+    print('sigma = StringFile[\'hyph-de-sigma.txt\', symtab];', file=args.thraxfile)
+    print('sigmastar = sigma*;', file=args.thraxfile)
+    print('export HYPHENATE = Optimize[ConvIn @', file=args.thraxfile)
+    for priority, contexts in enumerate(rewrites):
+        for lctx, rctx in contexts:
+            rewrite = '"-": ""' if priority % 2 == 0 else '"": "-"'
+            lcs = thraxified_context(lctx)
+            rcs = thraxified_context(rctx)
+            print('    CDRewrite[{}, {}, {}, sigmastar] @'.format(rewrite, lcs, rcs), file=args.thraxfile)
+    print('    ConvOut];', file=args.thraxfile)
 
 
 def main():
