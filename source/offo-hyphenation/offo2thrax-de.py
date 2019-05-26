@@ -113,7 +113,10 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
         pattern = convert_to_symbols(pattern)
         #print(pattern)
     print('symtab = SymbolTable[\'hyph-de.sym\']', file=args.thraxfile)
-    print('conv_in = SymbolTable[\'hyph-de-in.tsv\']', file=args.thraxfile)
+    print('conv_in = SymbolTable[\'hyph-de-in.tsv\', \'utf8\', symtab]', file=args.thraxfile)
+    print('conv_out = SymbolTable[\'hyph-de-out.tsv\', symtab, \'byte\']', file=args.thraxfile)
+    print('', file=args.thraxfile)
+    print('sigma_star = symtab*', file=args.thraxfile)
 
 
 def main():
