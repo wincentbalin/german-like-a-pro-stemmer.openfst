@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-"""Export OFFO hyphenation rules of specified language to thrax file"""
+"""Export OFFO German hyphenation rules  to thrax file"""
 
 import sys
 import os
@@ -10,38 +10,6 @@ import zipfile
 import xml
 import xml.sax
 import xml.etree.ElementTree as ET
-
-
-# The configuration dictionary replace
-CONFIG = {}
-
-
-class Language:
-    """Abstraction of a language."""
-    def __init__(self, *args, **kwargs):
-        raise NotImplementedError('Please derive your language form class Language')
-
-
-class GermanLanguage(Language):
-    def __init__(self):
-        self.name = 'de'
-        self.xml_charset = 'iso-8859-1'
-        self.symbols = 'abcdefghijklmnopqrstuvwxyzAOUNS.-'
-        self.inconv = {
-            'A': 'a',
-            'a': 'a',
-            'Ä': 'A',
-            'ä': 'A',
-            'Ö': 'O',
-            'ö': 'O',
-            'Ü': 'U',
-            'ü': 'U',
-            'ß': 'S',
-            '.': '.',
-            '-': '-'
-        }
-        # Register itself
-        CONFIG[self.name] = self
 
 
 class HyphenMin:
@@ -120,35 +88,39 @@ class Patterns:
     """Abstraction of patterns."""
     def __init__(self, root: ET.Element):
         elem = root.find('patterns')
-        self.patterns = elem.text.split()
+        self.patterns = [pt.strip() for pt in elem.text.split()]
 
 
 def load_offo_file(args: argparse.Namespace) -> tuple:
     with zipfile.ZipFile(args.offofile) as offozip:
-        xmldata = offozip.read('offo-hyphenation/hyph/{}.xml'.format(args.language))
-    root = ET.fromstring(xmldata.decode(CONFIG[args.language]['xml-charset']))
+        xmldata = offozip.read('offo-hyphenation/hyph/de.xml')
+    root = ET.fromstring(xmldata.decode('iso-8859-1'))
     hyphen_min = HyphenMin(root)
     exceptions = Exceptions(root)
     patterns = Patterns(root)
     return hyphen_min, exceptions, patterns
 
 
+def convert_to_symbols(s: str) -> str:
+    """Convert input characters to symbols."""
+    return s.replace('ä', 'A').replace('ö', 'O').replace('ü', 'U').replace('å', 'N').replace('ß', 'S')
+
+
 def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt: Patterns):
     # Split patterns so they contain only one hyphenation point and order them by ascending priority
+    split_patterns = []
     for pattern in pt.patterns:
-        print(pattern)
+        pattern = convert_to_symbols(pattern)
+        #print(pattern)
+    print('symtab = SymbolTable[\'hyph-de.sym\']', file=args.thraxfile)
+    print('conv_in = SymbolTable[\'hyph-de-in.tsv\']', file=args.thraxfile)
 
 
 def main():
     argparser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argparser.add_argument('offofile', type=argparse.FileType('rb'), help='Zip archive of OFFO hyphenations')
-    argparser.add_argument('language', help='language name')
     argparser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
     args = argparser.parse_args()
-    if args.language not in CONFIG:
-        print('Language "{}" is not configured'.format(args.language), file=sys.stderr)
-        print('Please consult CONFIG dictionary at the top of the executed script', file=sys.stderr)
-        sys.exit(1)
     hyphen_min, exceptions, patterns = load_offo_file(args)
     save_thrax_file(args, hyphen_min, exceptions, patterns)
 
