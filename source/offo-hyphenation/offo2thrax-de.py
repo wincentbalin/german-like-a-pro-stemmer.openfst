@@ -88,7 +88,7 @@ class Patterns:
     """Abstraction of patterns."""
     def __init__(self, root: ET.Element):
         elem = root.find('patterns')
-        self.patterns = [pt.strip() for pt in elem.text.split()]
+        self.patterns = elem.text.split()
 
 
 def load_offo_file(args: argparse.Namespace) -> tuple:
