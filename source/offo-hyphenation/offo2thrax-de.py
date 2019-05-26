@@ -17,10 +17,10 @@ class HyphenMin:
     def __init__(self, root: ET.Element):
         elem = root.find('hyphen-min')
         if elem is not None:
-            self.before = self.get_attribute(elem, 'before')
-            self.after = self.get_attribute(elem, 'after')
+            self.before = self.get_int_attribute(elem, 'before')
+            self.after = self.get_int_attribute(elem, 'after')
     
-    def get_attribute(self, elem: ET.Element, attr: str):
+    def get_int_attribute(self, elem: ET.Element, attr: str):
         return int(elem.get(attr)) if attr in elem.attrib else None
 
 
