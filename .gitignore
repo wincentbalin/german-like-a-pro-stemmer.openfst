@@ -6,6 +6,9 @@ Vagrantfile
 .vagrant/
 ubuntu-*-console.log
 
+# Ignore Visual Studio Code settings
+.vscode/
+
 # Ignore intermediate files
 synonymliste
 wortliste
