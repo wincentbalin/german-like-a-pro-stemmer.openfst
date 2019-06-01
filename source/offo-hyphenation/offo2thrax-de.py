@@ -102,126 +102,69 @@ def load_offo_file(args: argparse.Namespace) -> tuple:
     return hyphen_min, exceptions, patterns
 
 
-def convert_to_symbols(s: str) -> str:
-    """Convert input characters to symbols."""
-    return s.replace('ä', 'A').replace('ö', 'O').replace('ü', 'U').replace('å', 'N').replace('ß', 'S')
-
-
-def thraxified_context(ctx: str) -> str:
-    return ' hyph '.join(['"{}"'.format(c) for c in ctx.split('-')])
-
-
 def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt: Patterns):
-    # Character conversion tables
-    utf8toascii = {'a': 'a', 'A': 'a', 'b': 'b', 'B': 'b', 'c': 'c', 'C': 'c',
-                   'd': 'd', 'D': 'd', 'e': 'e', 'E': 'e', 'f': 'f', 'F': 'f',
-                   'g': 'g', 'G': 'g', 'h': 'h', 'H': 'h', 'i': 'i', 'I': 'i',
-                   'j': 'j', 'J': 'j', 'k': 'k', 'K': 'k', 'l': 'l', 'L': 'l',
-                   'm': 'm', 'M': 'm', 'n': 'n', 'N': 'n', 'o': 'o', 'O': 'o',
-                   'p': 'p', 'P': 'p', 'q': 'q', 'Q': 'q', 'r': 'r', 'R': 'r',
-                   's': 's', 'S': 's', 't': 't', 'T': 't', 'u': 'u', 'U': 'u',
-                   'v': 'v', 'V': 'v', 'w': 'w', 'W': 'w', 'x': 'x', 'X': 'x',
-                   'y': 'y', 'Y': 'y', 'z': 'z', 'Z': 'z',
-                   'ä': 'A', 'Ä': 'A', 'ö': 'O', 'Ö': 'O', 'ü': 'U', 'Ü': 'U',
-                   'å': 'N', 'Å': 'N', 'ß': 'S', '-': '-'}
-    asciitoutf8 = {'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f',
-                   'g': 'g', 'h': 'h', 'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l',
-                   'm': 'm', 'n': 'n', 'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r',
-                   's': 's', 't': 't', 'u': 'u', 'v': 'v', 'w': 'w', 'x': 'x',
-                   'y': 'y', 'z': 'z', 'A': 'ä', 'O': 'ö', 'U': 'u', 'N': 'å',
-                   'S': 'ß', '-': '-'}
-    sigmastar = '" | "'.join('abcdefghijklmnopqrstuvwxyzAOUNS-')
-    # Split patterns so they contain only one hyphenation point and order them by ascending priority
-    rewrites = [[] for i in range(10)]
-    def convert_pattern_charset(s: str) -> str:
-        l = [c if c.isdigit() or c == '.' else utf8toascii[c] for c in s]
-        return ''.join(l)
+    # Write the alphabet
+    print('ascii_letter = Optimize["a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" |', file=args.thraxfile)
+    print('                        "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"];', file=args.thraxfile)
+    print('letter = Optimize[ascii_letter | "A" | "O" | "U" | "N" | "S"];', file=args.thraxfile)
+    print('sigma = Optimize[letter | "-" | "."];', file=args.thraxfile)
+    # Write lowercase converter
+    print('to_lowercase = Optimize[(ascii_letter | "ä".utf8 | "ö".utf8 | "ü".utf8 | "å".utf8 | "ß".utf8 |', file=args.thraxfile)
+    print('                ("A": "a") | ("B": "b") | ("C": "c") | ("D": "d") | ("E": "e") | ("F": "f") |', file=args.thraxfile)
+    print('                ("G": "g") | ("H": "h") | ("I": "i") | ("J": "j") | ("K": "k") | ("L": "l") |', file=args.thraxfile)
+    print('                ("M": "m") | ("N": "n") | ("O": "o") | ("P": "p") | ("Q": "q") | ("R": "r") |', file=args.thraxfile)
+    print('                ("S": "s") | ("T": "t") | ("U": "u") | ("V": "v") | ("W": "w") | ("X": "x") |', file=args.thraxfile)
+    print('                ("Y": "y") | ("Z": "z") |', file=args.thraxfile)
+    print('                ("Ä".utf8: "ä".utf8) | ("Ö".utf8: "ö".utf8) | ("Ü".utf8: "ü".utf8) | ("Å".utf8: "å".utf8))*];', file=args.thraxfile)
+    # Write the converters from and to UTF-8
+    print('from_utf8 = Optimize[(ascii_letter | ("ä".utf8: "A") | ("ö".utf8: "O") | ("ü".utf8: "U") | ("å".utf8: "N") | ("ß".utf8: "S"))*];', file=args.thraxfile)
+    print('to_utf8 = Optimize[(ascii_letter | "-" | ("A": "ä".utf8) | ("O": "ö".utf8) | ("U": "ü".utf8) | ("N": "å".utf8) | ("S": "ß".utf8))*];', file=args.thraxfile)
+    # Write the rewriting patterns
+    def convert_to_ascii(s: str) -> str:
+        return s.replace('ä', 'A').replace('ö', 'O').replace('ü', 'U').replace('å', 'N').replace('ß', 'S')
+    def split_string_by_digit(s: str) -> list:
+        l = []
+        for c in s:
+            if c.isdigit():
+                l.append(c)
+            else:
+                if l and not l[-1][-1].isdigit():
+                    l[-1] += c
+                else:
+                    l.append(c)
+        return l
+    def scored_rewrite(score: int) -> str:
+        return '("-": "" <-{}>)?'.format(score) if score % 2 == 0 else '("": "-" <-{}>)'.format(score)
+    def print_patterns_partition(rule_name: str, p: list):
+        rule_start = rule_name + ' = Optimize['
+        rule_body = ' |\n'.join(p)
+        rule_end = '];'
+        print('\n'.join([rule_start, rule_body, rule_end]), file=args.thraxfile)
+    rewritten_patterns = []
     for pattern in pt.patterns:
-        pattern = convert_pattern_charset(pattern)
-        last_pos = len(pattern)-1
-        last_letter_pos = None
-        for i in range(last_pos, -1, -1):
-            if pattern[i].isalpha():
-                last_letter_pos = i
-                break
-        min_hyph_pos = 0
-        alpha_index = 0
-        if pattern[0] == '.':
-            for i in range(len(pattern)):
-                if pattern[i].isalpha():
-                    if alpha_index < hm.before:
-                        alpha_index += 1
-                    else:
-                        min_hyph_pos = i
-                        break
-        max_hyph_pos = last_pos
-        alpha_index = 0
-        if pattern[last_pos] == '.':
-            for i in range(last_pos, -1, -1):
-                if pattern[i].isalpha():
-                    if alpha_index < hm.after:
-                        alpha_index += 1
-                    else:
-                        max_hyph_pos = i
-                        break
-        hyphpoints = [(i, int(c)) for i, c in enumerate(pattern) if c.isdigit()]
-        for point, point_value in hyphpoints:
-            lctx = []
-            rctx = []
-            for i in range(point):
-                c = pattern[i]
-                if c.isdigit():
-                    continue
-                if c == '.':
-                    lctx.append('[BOS]')
-                else:
-                    lctx.append(c)
-                    if i < point - 1 and i >= min_hyph_pos:
-                        lctx.append('-')
-            for i in range(point+1, len(pattern)):
-                c = pattern[i]
-                if c.isdigit():
-                    continue
-                if c == '.':
-                    rctx.append('[EOS]')
-                else:
-                    rctx.append(c)
-                    if i < last_letter_pos and i < max_hyph_pos:
-                        rctx.append('-')
-            rewrites[point_value].append((''.join(lctx), ''.join(rctx)))
-    # Partition patterns
-    partition_filenames = []
-    partition_rules = []
-    PARTITION_SIZE = 50
-    partition_filename_root, _ = os.path.splitext(args.thraxfile.name)
-    rw = [(priority, lrctxs) for priority, contexts in enumerate(rewrites) for lrctxs in contexts]
-    for partition_index, partition in enumerate([rw[i:i+PARTITION_SIZE] for i in range(0, len(rw), PARTITION_SIZE)], 1):
-        partition_filename = '{}_{}.grm'.format(partition_filename_root, partition_index)
-        partition_filenames.append(partition_filename)
-        partition_rules.append('p{}'.format(partition_index))  # Use it when creating main Thrax file
-        with open(partition_filename, 'w') as partfile:
-            print('hyph = "-" ?;', file=partfile)
-            print('sigmastar = Optimize["{}"]*;'.format(sigmastar), file=partfile)
-            print('export HYPHENATE = Optimize[', file=partfile)
-            cdrewrites = []
-            for priority, (lctx, rctx) in partition:
-                hyph = '"-": ""' if priority % 2 == 0 else '"": "-"'
-                lc = thraxified_context(lctx)
-                rc = thraxified_context(rctx)
-                cdrewrites.append('    CDRewrite[{}, {}, {}, sigmastar]'.format(hyph, lc, rc))
-            print(' @\n'.join(cdrewrites), file=partfile)
-            print('];', file=partfile)
-    for partition_filename, partition_rule in zip(partition_filenames, partition_rules):
-        print('import \'{}\' as {};'.format(partition_filename, partition_rule), file=args.thraxfile)
-    print('', file=args.thraxfile)
-    utf8toascii_conv = ['("{}": "{}")'.format(k, v) for k, v in utf8toascii.items()]
-    print('input_conv = Optimize[{}];'.format(' | '.join(utf8toascii_conv)), file=args.thraxfile)
-    asciitoutf8_conv = ['("{}": "{}")'.format(k, v) for k, v in asciitoutf8.items()]
-    print('output_conv = Optimize[{}];'.format(' | '.join(asciitoutf8_conv)), file=args.thraxfile)
-    print('export HYPHENATE = input_conv @', file=args.thraxfile)
-    for partition_rule in partition_rules:
-        print('    {}.HYPHENATE @'.format(partition_rule), file=args.thraxfile)
-    print('    output_conv;', file=args.thraxfile)
+        ss = split_string_by_digit(convert_to_ascii(pattern))
+        l = [scored_rewrite(int(c)) if c.isdigit() else '"{}"'.format(c) for c in ss]
+        #if ss[0].isdigit():  # Workaround against double hyphens
+        #    l.insert(0, 'letter')
+        rewritten_patterns.append('    {}'.format(' '.join(l)))
+    # We must partition the patterns, because Thrax (v. 1.2.9) hit the limit at around 5000 patterns
+    patterns_middle = int(len(rewritten_patterns) / 2)
+    print_patterns_partition('patterns1', rewritten_patterns[:patterns_middle])
+    print_patterns_partition('patterns2', rewritten_patterns[patterns_middle:])
+    print('patterns = Optimize[patterns1 | patterns2];', file=args.thraxfile)
+    # Define rules for adding and removing word boundaries
+    print('add_bounds = Optimize[("": ".") sigma+ ("": ".")];', file=args.thraxfile)
+    print('remove_bounds = Optimize[(".": "") sigma+ (".": "")];', file=args.thraxfile)
+    # Define rules for hyphenation boundaries (at least 2 characters from word boundaries)
+    print('remh = ("-": "")?;', file=args.thraxfile)
+    print('min_hyphen = Optimize["." remh letter remh letter sigma+ letter remh letter remh "."];', file=args.thraxfile)
+    print('reduce_hyphens = CDRewrite["-"+: "-", "", "", sigma*];', file=args.thraxfile)
+    # Write exceptions
+    print('exceptions = Optimize[(("backen": "bak-ken") | ("bettuch": "bett-tuch")) <-100>];', file=args.thraxfile)
+    # Concatenate everything
+    print('export HYPHENATE = Optimize[to_lowercase @ from_utf8 @ ', file=args.thraxfile)
+    print('    ((add_bounds @ (patterns | sigma)* @ reduce_hyphens @ min_hyphen @ remove_bounds) | exceptions) @', file=args.thraxfile)
+    print('    to_utf8];', file=args.thraxfile)
 
 
 def main():
