@@ -157,7 +157,29 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
     print('min_hyphen = Optimize["." remh letter remh letter sigma+ letter remh letter remh "."];', file=args.thraxfile)
     print('reduce_hyphens = CDRewrite["-"+: "-", "", "", sigma*];', file=args.thraxfile)
     # Write exceptions
-    print('exceptions = Optimize[(("backen": "bak-ken") | ("bettuch": "bett-tuch")) <-100>];', file=args.thraxfile)
+    def exception_rewrites() -> str:
+        l = []
+        for exc in ex.entries:
+            src = []
+            dst = []
+            for el in exc:
+                tel = type(el)
+                if tel == str:
+                    src.append(el)
+                    dst.append(el)
+                elif tel == Hyphen:
+                    if el.no:
+                        src.append(el.no)
+                    if el.pre:
+                        dst.append(el.pre)
+                    dst.append('-')
+                    if el.post:
+                        dst.append(el.post)
+                else:
+                    raise TypeError('Unknown element type')
+            l.append('("{}": "{}")'.format(''.join(src), ''.join(dst)))
+        return ' | '.join(l)
+    print('exceptions = Optimize[({}) <-100>];'.format(exception_rewrites()), file=args.thraxfile)
     # Concatenate everything
     print('export HYPHENATE = Optimize[to_lowercase @ from_utf8 @ ', file=args.thraxfile)
     print('    ((add_bounds @ (patterns | sigma)* @ reduce_hyphens @ min_hyphen @ remove_bounds) | exceptions) @', file=args.thraxfile)
