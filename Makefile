@@ -9,6 +9,25 @@ SOURCE_SYNONYMLISTE = source/synonymliste/gistfile1.txt
 #
 german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far
 
+byte.grm: /usr/local/share/thrax/grammars/byte.grm
+	cp $< $@
+
+util.far: util.grm byte.far
+
+hyphenate.far: hyphenate.grm util.far
+
+hyphenate.grm: source/offo-hyphenation/offo-hyphenation_v1.2.zip source/offo-hyphenation/offo2thrax-de.py
+	python3 source/offo-hyphenation/offo2thrax-de.py source/offo-hyphenation/offo-hyphenation_v1.2.zip $@
+
+test: hyphenate.far
+	thraxrewrite-tester --far=$< --rules=HYPHENATE
+
+diagram: hyphenate.far
+	farextract $<
+	fstdraw HYPHENATE > HYPHENATE.dot
+	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
+	rm HYPHENATE.dot HYPHENATE
+
 wortliste.far: wortliste.grm wortliste
 
 synonymliste.far: synonymliste.grm synonymliste
@@ -20,7 +39,7 @@ synonymliste: $(SOURCE_SYNONYMLISTE)
 	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' > $@
 
 clean:
-	rm -f wortliste.far synonymliste.far wortliste synonymliste
+	rm -f hyphenate.far wortliste.far synonymliste.far hyphenate.grm wortliste synonymliste
 
 %.far: %.grm
 	thraxcompiler --input_grammar=$< --output_far=$@
