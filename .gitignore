@@ -12,11 +12,13 @@ ubuntu-*-console.log
 # Ignore intermediate files
 synonymliste
 wortliste
+hyphenate.grm
 
 # Ignore .far files
 german-pro-stemmer.far
 synonymliste.far
 wortliste.far
+hyphenate.far
 
 # Ignore testing files
 .rewrite-tester-history
