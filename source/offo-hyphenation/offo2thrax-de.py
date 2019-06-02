@@ -48,7 +48,6 @@ class Exceptions:
             parser.setFeature(xml.sax.handler.feature_namespaces, 0)
             exceptions_handler = ExceptionsHandler(self)
             xml.sax.parseString(rawtext, exceptions_handler)
-            #print(self.entries)
 
     def add_entry(self, hyph_word: list):
         self.entries.append(hyph_word)
@@ -144,8 +143,6 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
     for pattern in pt.patterns:
         ss = split_string_by_digit(convert_to_ascii(pattern))
         l = [scored_rewrite(int(c)) if c.isdigit() else '"{}"'.format(c) for c in ss]
-        #if ss[0].isdigit():  # Workaround against double hyphens
-        #    l.insert(0, 'letter')
         rewritten_patterns.append('    {}'.format(' '.join(l)))
     # We must partition the patterns, because Thrax (v. 1.2.9) hit the limit at around 5000 patterns
     patterns_middle = int(len(rewritten_patterns) / 2)
