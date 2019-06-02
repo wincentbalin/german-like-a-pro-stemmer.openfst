@@ -3,6 +3,7 @@
 #
 SOURCE_WORTLISTE = source/wortliste/wortliste
 SOURCE_SYNONYMLISTE = source/synonymliste/gistfile1.txt
+SOURCE_OFFO_HYPHENATION = source/offo-hyphenation/offo-hyphenation_v1.2.zip
 
 #
 # Compilation rules
@@ -16,8 +17,8 @@ util.far: util.grm byte.far
 
 hyphenate.far: hyphenate.grm util.far
 
-hyphenate.grm: source/offo-hyphenation/offo-hyphenation_v1.2.zip source/offo-hyphenation/offo2thrax-de.py
-	python3 source/offo-hyphenation/offo2thrax-de.py source/offo-hyphenation/offo-hyphenation_v1.2.zip $@
+hyphenate.grm: $(SOURCE_OFFO_HYPHENATION) source/offo-hyphenation/offo2thrax-de.py
+	python3 source/offo-hyphenation/offo2thrax-de.py $(SOURCE_OFFO_HYPHENATION) $@
 
 test: hyphenate.far
 	thraxrewrite-tester --far=$< --rules=HYPHENATE
