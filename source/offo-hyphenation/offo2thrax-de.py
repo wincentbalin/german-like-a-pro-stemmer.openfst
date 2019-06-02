@@ -105,7 +105,7 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
     # Write the alphabet
     print('ascii_letter = Optimize["a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" |', file=args.thraxfile)
     print('                        "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"];', file=args.thraxfile)
-    print('letter = Optimize[ascii_letter | "A" | "O" | "U" | "N" | "S"];', file=args.thraxfile)
+    print('letter = Optimize[ascii_letter | "ä" | "ö" | "ü" | "å" | "ß"];', file=args.thraxfile)
     print('sigma = Optimize[letter | "-" | "."];', file=args.thraxfile)
     # Write lowercase converter
     print('to_lowercase = Optimize[(ascii_letter | "ä".utf8 | "ö".utf8 | "ü".utf8 | "å".utf8 | "ß".utf8 |', file=args.thraxfile)
@@ -115,12 +115,7 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
     print('                ("S": "s") | ("T": "t") | ("U": "u") | ("V": "v") | ("W": "w") | ("X": "x") |', file=args.thraxfile)
     print('                ("Y": "y") | ("Z": "z") |', file=args.thraxfile)
     print('                ("Ä".utf8: "ä".utf8) | ("Ö".utf8: "ö".utf8) | ("Ü".utf8: "ü".utf8) | ("Å".utf8: "å".utf8))*];', file=args.thraxfile)
-    # Write the converters from and to UTF-8
-    print('from_utf8 = Optimize[(ascii_letter | ("ä".utf8: "A") | ("ö".utf8: "O") | ("ü".utf8: "U") | ("å".utf8: "N") | ("ß".utf8: "S"))*];', file=args.thraxfile)
-    print('to_utf8 = Optimize[(ascii_letter | "-" | ("A": "ä".utf8) | ("O": "ö".utf8) | ("U": "ü".utf8) | ("N": "å".utf8) | ("S": "ß".utf8))*];', file=args.thraxfile)
     # Write the rewriting patterns
-    def convert_to_ascii(s: str) -> str:
-        return s.replace('ä', 'A').replace('ö', 'O').replace('ü', 'U').replace('å', 'N').replace('ß', 'S')
     def split_string_by_digit(s: str) -> list:
         l = []
         for c in s:
@@ -141,7 +136,7 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
         print('\n'.join([rule_start, rule_body, rule_end]), file=args.thraxfile)
     rewritten_patterns = []
     for pattern in pt.patterns:
-        ss = split_string_by_digit(convert_to_ascii(pattern))
+        ss = split_string_by_digit(pattern)
         l = [scored_rewrite(int(c)) if c.isdigit() else '"{}"'.format(c) for c in ss]
         rewritten_patterns.append('    {}'.format(' '.join(l)))
     # We must partition the patterns, because Thrax (v. 1.2.9) hit the limit at around 5000 patterns
@@ -181,9 +176,8 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
         return ' | '.join(l)
     print('exceptions = Optimize[({}) <-100>];'.format(exception_rewrites()), file=args.thraxfile)
     # Concatenate everything
-    print('export HYPHENATE = Optimize[to_lowercase @ from_utf8 @ ', file=args.thraxfile)
-    print('    ((add_bounds @ (patterns | sigma)* @ reduce_hyphens @ min_hyphen @ remove_bounds) | exceptions) @', file=args.thraxfile)
-    print('    to_utf8];', file=args.thraxfile)
+    print('export HYPHENATE = Optimize[to_lowercase @ ', file=args.thraxfile)
+    print('    ((add_bounds @ (patterns | sigma)* @ reduce_hyphens @ min_hyphen @ remove_bounds) | exceptions)];', file=args.thraxfile)
 
 
 def main():
