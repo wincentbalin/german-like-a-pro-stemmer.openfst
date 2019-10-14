@@ -181,10 +181,10 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
 
 
 def main():
-    argparser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    argparser.add_argument('offofile', type=argparse.FileType('rb'), help='Zip archive of OFFO hyphenations')
-    argparser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
-    args = argparser.parse_args()
+    parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('offofile', type=argparse.FileType('rb'), help='Zip archive of OFFO hyphenations')
+    parser.add_argument('thraxfile', type=argparse.FileType('w', encoding='utf-8'), help='Resulting OpenGRM Thrax source')
+    args = parser.parse_args()
     hyphen_min, exceptions, patterns = load_offo_file(args)
     save_thrax_file(args, hyphen_min, exceptions, patterns)
 
