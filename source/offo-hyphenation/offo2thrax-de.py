@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-"""Export OFFO German hyphenation rules  to thrax file"""
+"""Export OFFO German hyphenation rules to thrax file"""
 
 import sys
-import os
-import re
 import argparse
 import zipfile
 import xml
 import xml.sax
 import xml.etree.ElementTree as ET
-import itertools
 
 
 class HyphenMin:
