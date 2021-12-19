@@ -102,7 +102,7 @@ def save_thrax_file(args: argparse.Namespace, hm: HyphenMin, ex: Exceptions, pt:
     # Write the alphabet
     print('ascii_letter = Optimize["a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" |', file=args.thraxfile)
     print('                        "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"];', file=args.thraxfile)
-    print('letter = Optimize[ascii_letter | "ä" | "ö" | "ü" | "å" | "ß"];', file=args.thraxfile)
+    print('letter = Optimize[ascii_letter | "ä".utf8 | "ö".utf8 | "ü".utf8 | "å".utf8 | "ß".utf8];', file=args.thraxfile)
     print('sigma = Optimize[letter | "-" | "."];', file=args.thraxfile)
     # Write lowercase converter
     print('to_lowercase = Optimize[(ascii_letter | "ä".utf8 | "ö".utf8 | "ü".utf8 | "å".utf8 | "ß".utf8 |', file=args.thraxfile)
