@@ -4,6 +4,7 @@
 SOURCE_WORTLISTE = source/wortliste/wortliste
 SOURCE_SYNONYMLISTE = source/synonymliste/gistfile1.txt
 SOURCE_OFFO_HYPHENATION = source/offo-hyphenation/offo-hyphenation_v1.2.zip
+SOURCE_HUNSPELL_DICTIONARY = source/hunspell-dict/dict-de_de-frami_2017-01-12.oxt
 
 #
 # Compilation rules
@@ -28,6 +29,13 @@ diagram: hyphenate.far
 	fstdraw HYPHENATE > HYPHENATE.dot
 	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
 	rm HYPHENATE.dot HYPHENATE
+
+de_DE_frami.aff: $(SOURCE_HUNSPELL_DICTIONARY)
+	unzip -c -q $< de_DE_frami/de_DE_frami.aff | iconv -f ISO8859-1 -t UTF-8 > $@
+	sed -i -e s/ISO8859-1/UTF-8/ $@
+
+de_DE_frami.dic: $(SOURCE_HUNSPELL_DICTIONARY)
+	unzip -c -q $< de_DE_frami/de_DE_frami.dic | iconv -f ISO8859-1 -t UTF-8 > $@
 
 wortliste.far: wortliste.grm wortliste
 
