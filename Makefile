@@ -46,7 +46,7 @@ synonymliste: $(SOURCE_SYNONYMLISTE)
 	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' > $@
 
 clean:
-	rm -f hyphenate.far wortliste.far synonymliste.far hyphenate.grm wortliste synonymliste hunspell-stems
+	rm -f hyphenate.far wortliste.far synonymliste.far hunspell-stems.far hyphenate.grm wortliste synonymliste hunspell-stems
 
 %.far: %.grm
 	thraxcompiler --input_grammar=$< --output_far=$@
