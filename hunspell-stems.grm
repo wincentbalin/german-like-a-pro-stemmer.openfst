@@ -1,0 +1,3 @@
+hunspell_stems = StringFile['hunspell-stems', 'utf8', 'utf8'];
+export HUNSPELL_STEMS = Optimize[Invert[hunspell_stems]];
+
