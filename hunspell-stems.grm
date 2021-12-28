@@ -1,3 +1,5 @@
+import 'byte.grm' as b;
 hunspell_stems = StringFile['hunspell-stems', 'utf8', 'utf8'];
-export HUNSPELL_STEMS = Optimize[Invert[hunspell_stems]];
+sigma = b.kBytes;
+export HUNSPELL_STEMS2 = Optimize[CDRewrite["" : "-", "[BOS]", "", sigma*] @ Invert[hunspell_stems]];
 
