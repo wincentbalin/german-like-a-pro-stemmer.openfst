@@ -22,13 +22,15 @@ hyphenate.grm: $(SOURCE_OFFO_HYPHENATION) source/offo-hyphenation/offo2thrax-de.
 	python3 source/offo-hyphenation/offo2thrax-de.py $(SOURCE_OFFO_HYPHENATION) $@
 
 test: hyphenate.far
-	thraxrewrite-tester --far=$< --rules=HYPHENATE
+	thraxrewrite-tester --input_mode=utf8 --output_mode=utf8 --far=$< --rules=HYPHENATE
 
 diagram: hyphenate.far
 	farextract $<
 	fstdraw HYPHENATE > HYPHENATE.dot
 	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
 	rm HYPHENATE.dot HYPHENATE
+
+hunspell-stems.far: hunspell-stems.grm hunspell-stems
 
 wortliste.far: wortliste.grm wortliste
 
