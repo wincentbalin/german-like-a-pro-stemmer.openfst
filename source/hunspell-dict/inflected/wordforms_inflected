@@ -1,0 +1,14 @@
+#!/bin/bash
+case $# in
+0|1|2) echo "Usage: wordforms_inflected dictionary.aff dictionary.dic charset
+"; exit 1;;
+esac
+grep -v -a -P "^[#0-9]|^\t" "$2" | iconv -f "$3" -t UTF-8 | while read -r root
+do
+  root="${root%%/*}"
+  for inflected in $(./wordforms "$1" "$2" "$root" | sort | uniq)
+  do
+    printf "$root\t$inflected\n"
+  done
+done
+
