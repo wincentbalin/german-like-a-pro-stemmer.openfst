@@ -4,7 +4,7 @@
 SOURCE_WORTLISTE = source/wortliste/wortliste
 SOURCE_SYNONYMLISTE = source/synonymliste/gistfile1.txt
 SOURCE_OFFO_HYPHENATION = source/offo-hyphenation/offo-hyphenation_v1.2.zip
-SOURCE_HUNSPELL_DICTIONARY = source/hunspell-dict/dict-de_de-frami_2017-01-12.oxt
+SOURCE_HUNSPELL_INFLECTED = source/hunspell-dict/inflected/hunspell-inflected.txt
 
 #
 # Compilation rules
@@ -30,16 +30,12 @@ diagram: hyphenate.far
 	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
 	rm HYPHENATE.dot HYPHENATE
 
-de_DE_frami.aff: $(SOURCE_HUNSPELL_DICTIONARY)
-	unzip -c -q $< de_DE_frami/de_DE_frami.aff | iconv -f ISO8859-1 -t UTF-8 > $@
-	sed -i -e s/ISO8859-1/UTF-8/ $@
-
-de_DE_frami.dic: $(SOURCE_HUNSPELL_DICTIONARY)
-	unzip -c -q $< de_DE_frami/de_DE_frami.dic | iconv -f ISO8859-1 -t UTF-8 > $@
-
 wortliste.far: wortliste.grm wortliste
 
 synonymliste.far: synonymliste.grm synonymliste
+
+hunspell-stems: $(SOURCE_HUNSPELL_INFLECTED)
+	grep -P -e '\t-' $< | grep -v -e '-$$' > $@
 
 wortliste: $(SOURCE_WORTLISTE)
 	cut -d\; -f1 $< > $@
@@ -48,7 +44,7 @@ synonymliste: $(SOURCE_SYNONYMLISTE)
 	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' > $@
 
 clean:
-	rm -f hyphenate.far wortliste.far synonymliste.far hyphenate.grm wortliste synonymliste
+	rm -f hyphenate.far wortliste.far synonymliste.far hyphenate.grm wortliste synonymliste hunspell-stems
 
 %.far: %.grm
 	thraxcompiler --input_grammar=$< --output_far=$@
