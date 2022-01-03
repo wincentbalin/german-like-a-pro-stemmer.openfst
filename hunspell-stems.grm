@@ -1,6 +1,4 @@
-import 'byte.grm' as b;
+import 'symbols.grm' as sym;
 hunspell_stems = StringFile['hunspell-stems', 'utf8', 'utf8'];
-sigma = b.kBytes;
-remove_starting_dash = Optimize[CDRewrite["-".utf8 : "", "[BOS]".utf8, "", sigma*]];
-export HUNSPELL_STEMS = Optimize[(sigma* : "") Invert[hunspell_stems @ remove_starting_dash]];
-
+remove_starting_dash = Optimize[CDRewrite["-": "", "[BOS]", "", sym.sigma*]];
+export HUNSPELL_STEMS = Optimize[(sym.sigma*: "") Invert[hunspell_stems @ remove_starting_dash]];
