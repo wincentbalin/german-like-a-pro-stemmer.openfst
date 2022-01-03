@@ -12,8 +12,8 @@ export sigma = Optimize [
     "Ö".utf8 | "é".utf8 | "Y" | "ñ".utf8 | "." |
     "á".utf8 | "ç".utf8 | "è".utf8 | "â".utf8 |
     "ê".utf8 | "ë".utf8 | "à".utf8 | "ó".utf8 |
-    "í".utf8 | "ô".utf8 | "Œ".utf8 | "Š".utf8 |
-    "î".utf8 | "ï".utf8
+    "í".utf8 | "ô".utf8 | "Œ".utf8 | "Š".utf8 | "š".utf8 |
+    "î".utf8 | "ï".utf8 | "œ".utf8 | "Å".utf8 | "å".utf8
 ];
 
 export to_lowercase = Optimize[
@@ -28,6 +28,6 @@ export to_lowercase = Optimize[
     ("Ö".utf8: "ö".utf8) | "é".utf8 | ("Y": "y") | "ñ".utf8 | "." |
     "á".utf8 | "ç".utf8 | "è".utf8 | "â".utf8 |
     "ê".utf8 | "ë".utf8 | "à".utf8 | "ó".utf8 |
-    "í".utf8 | "ô".utf8 | ("Œ".utf8: "œ".utf8) | ("Š".utf8: "š".utf8) |
-    "î".utf8 | "ï".utf8
+    "í".utf8 | "ô".utf8 | ("Œ".utf8: "œ".utf8) | ("Š".utf8: "š".utf8) | "š".utf8 |
+    "î".utf8 | "ï".utf8 | "œ".utf8 | ("Å".utf8: "å".utf8) | "å".utf8
 ];
