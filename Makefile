@@ -9,14 +9,9 @@ SOURCE_HUNSPELL_INFLECTED = source/hunspell-dict/inflected/hunspell-inflected.tx
 #
 # Compilation rules
 #
-german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far hunspell-stems.far
+german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far symbols.far hyphenate.far hunspell-stems.far
 
-byte.grm: /usr/local/share/thrax/grammars/byte.grm
-	cp $< $@
-
-util.far: util.grm byte.far
-
-hyphenate.far: hyphenate.grm util.far
+hyphenate.far: hyphenate.grm symbols.far
 
 hyphenate.grm: $(SOURCE_OFFO_HYPHENATION) source/offo-hyphenation/offo2thrax-de.py
 	python3 source/offo-hyphenation/offo2thrax-de.py $(SOURCE_OFFO_HYPHENATION) $@
