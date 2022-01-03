@@ -30,6 +30,12 @@ diagram: hyphenate.far
 	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
 	rm HYPHENATE.dot HYPHENATE
 
+diagram2: test.far
+	farextract $<
+	fstdraw FIND_ROOT > FIND_ROOT.dot
+	dot -Gdpi=2400 -Grankdir=LR -o FIND_ROOT.png -Tpng FIND_ROOT.dot
+	rm FIND_ROOT.dot FIND_ROOT
+
 hunspell-stems.far: hunspell-stems.grm hunspell-stems
 
 wortliste.far: wortliste.grm wortliste
