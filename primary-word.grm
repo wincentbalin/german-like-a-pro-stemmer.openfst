@@ -3,7 +3,6 @@ import 'hyphenate.grm' as hy;
 import 'symbols.grm' as sym;
 
 sigma = sym.sigma;
-#sigma = "a" | "b" | "c" | "-" | ".";
 sigma_no_dash = sigma - "-";
 to_lowercase = Optimize[sym.to_lowercase*];
 
