@@ -1,4 +1,3 @@
-import 'hunspell-stems.grm' as hs;
 import 'wortliste.grm' as wl;
 import 'hyphenate.grm' as hy;
 import 'symbols.grm' as sym;
