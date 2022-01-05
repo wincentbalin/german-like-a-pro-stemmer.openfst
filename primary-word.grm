@@ -1,0 +1,18 @@
+import 'hunspell-stems.grm' as hs;
+import 'wortliste.grm' as wl;
+import 'hyphenate.grm' as hy;
+import 'symbols.grm' as sym;
+
+sigma = sym.sigma;
+#sigma = "a" | "b" | "c" | "-" | ".";
+sigma_no_dash = sigma - "-";
+to_lowercase = Optimize[sym.to_lowercase*];
+
+syllable = sigma_no_dash+ "-" <1>;
+remove_syllable = (syllable: "") sigma+;
+remove_hyphens = (("-": "") | sigma_no_dash)*;
+export PRIMARY_WORD = Optimize[
+    to_lowercase @ hy.HYPHENATE @ remove_syllable @ remove_hyphens @
+    Invert[to_lowercase] @ wl.WORTLISTE @ to_lowercase
+];
+

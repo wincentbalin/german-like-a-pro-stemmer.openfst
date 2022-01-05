@@ -9,7 +9,9 @@ SOURCE_HUNSPELL_INFLECTED = source/hunspell-dict/inflected/hunspell-inflected.tx
 #
 # Compilation rules
 #
-german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far symbols.far hyphenate.far hunspell-stems.far
+german-pro-stemmer.far: german-pro-stemmer.grm wortliste.far synonymliste.far symbols.far primary-word.far hyphenate.far hunspell-stems.far
+
+primary-word.far: hyphenate.far hunspell-stems.far symbols.far
 
 hyphenate.far: hyphenate.grm symbols.far
 
