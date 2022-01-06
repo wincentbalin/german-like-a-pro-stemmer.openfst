@@ -46,7 +46,7 @@ wortliste: $(SOURCE_WORTLISTE)
 	cut -d\; -f1 $< > $@
 
 synonymliste: $(SOURCE_SYNONYMLISTE)
-	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' > $@
+	sed '/\(\S\+\) => \1/d' $< | sed 's/ => /\t/' | sed 's/.$$//' > $@
 
 clean:
 	rm -f *.far hyphenate.grm wortliste synonymliste hunspell-stems
