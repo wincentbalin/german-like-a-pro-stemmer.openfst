@@ -33,11 +33,11 @@ diagram2: test.far
 	dot -Gdpi=2400 -Grankdir=LR -o FIND_ROOT.png -Tpng FIND_ROOT.dot
 	rm FIND_ROOT.dot FIND_ROOT
 
-hunspell-stems.far: hunspell-stems.grm hunspell-stems
+hunspell-stems.far: hunspell-stems.grm hunspell-stems symbols.far
 
 wortliste.far: wortliste.grm wortliste
 
-synonymliste.far: synonymliste.grm synonymliste
+synonymliste.far: synonymliste.grm synonymliste symbols.far
 
 hunspell-stems: $(SOURCE_HUNSPELL_INFLECTED)
 	grep -P -e '\t-' $< | grep -v -e '-$$' > $@
