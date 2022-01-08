@@ -3,9 +3,17 @@
 #
 # From the article https://developer.s24.com/blog/german_stemming_like_a_pro.html
 
-import 'wortliste.grm' as wl;
 import 'synonymliste.grm' as sl;
+import 'hunspell-stems.grm' as hs;
+import 'primary-word.grm' as pw;
 
-# WORTLISTE is not a self-sufficient wordlist! It should be used with together with hyphenator!
-export STEMMER = Optimize[(wl.WORTLISTE <-1>) | (sl.SYNONYMLISTE <-4>)];
+BRANCH1 = sl.SYNONYMLISTE <-30>;
+BRANCH2 = hs.HUNSPELL_STEMS <-20>;
+BRANCH3 = (pw.PRIMARY_WORD <-10>) @ ((hs.HUNSPELL_STEMS <-2>) | (sl.SYNONYMLISTE <-1>));
+
+export STEMMER = Optimize[
+    BRANCH1 |
+    BRANCH2 |
+    BRANCH3
+];
 
