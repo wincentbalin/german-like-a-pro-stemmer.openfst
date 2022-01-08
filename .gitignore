@@ -13,6 +13,7 @@ ubuntu-*-console.log
 synonymliste
 wortliste
 hyphenate.grm
+hunspell-stems
 
 # Ignore .far files
 *.far
