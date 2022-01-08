@@ -18,20 +18,14 @@ hyphenate.far: hyphenate.grm symbols.far
 hyphenate.grm: $(SOURCE_OFFO_HYPHENATION) source/offo-hyphenation/offo2thrax-de.py
 	python3 source/offo-hyphenation/offo2thrax-de.py $(SOURCE_OFFO_HYPHENATION) $@
 
-test: hyphenate.far
+hyphenate-test: hyphenate.far
 	thraxrewrite-tester --input_mode=utf8 --output_mode=utf8 --far=$< --rules=HYPHENATE
 
-diagram: hyphenate.far
+hyphenate-diagram: hyphenate.far
 	farextract $<
 	fstdraw HYPHENATE > HYPHENATE.dot
 	dot -Gdpi=2400 -Grankdir=LR -o HYPHENATE.png -Tpng HYPHENATE.dot
 	rm HYPHENATE.dot HYPHENATE
-
-diagram2: test.far
-	farextract $<
-	fstdraw FIND_ROOT > FIND_ROOT.dot
-	dot -Gdpi=2400 -Grankdir=LR -o FIND_ROOT.png -Tpng FIND_ROOT.dot
-	rm FIND_ROOT.dot FIND_ROOT
 
 hunspell-stems.far: hunspell-stems.grm hunspell-stems symbols.far
 
